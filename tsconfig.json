@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "module": "esnext",
-    "moduleResolution": "bundler", // <-- Esto corrige el error 2307
+    "module": "commonjs",  // <-- IMPORTANTE: Cambia esto si dice "esnext" o "nodenext"
+    "moduleResolution": "node", // <-- IMPORTANTE
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

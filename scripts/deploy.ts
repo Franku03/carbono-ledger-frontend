@@ -2,7 +2,7 @@ import hre from "hardhat";
 const { ethers } = hre;
 import { expect } from "chai";
 import * as dotenv from "dotenv";
-import { CarbonoToken, CarbonoRegistry } from "../typechain-types";
+import { CarbonoToken, CarbonoRegistry } from "../typechain-types/index";
 
 dotenv.config();
 
@@ -36,7 +36,10 @@ async function main() {
   // --- PASO 1: DEPLOY TOKEN ---
   console.log("📦 Desplegando CarbonoToken (Estándar ECOS)...");
   const TokenFactory = await ethers.getContractFactory("CarbonoToken");
-  const token = (await TokenFactory.deploy()) as CarbonoToken;
+  const token = (await TokenFactory.deploy({
+    gasLimit: 6000000, // Forzamos un límite alto
+    gasPrice: 0        // En Quorum/redes privadas suele ser 0
+  })) as CarbonoToken;
   await token.waitForDeployment();
   const tokenAddr = await token.getAddress();
   console.log(`   ➤ Contrato Token: ${tokenAddr}`);
@@ -44,7 +47,10 @@ async function main() {
   // --- PASO 2: DEPLOY REGISTRY ---
   console.log("📦 Desplegando CarbonoRegistry (Cerebro del Mercado)...");
   const RegistryFactory = await ethers.getContractFactory("CarbonoRegistry");
-  const registry = (await RegistryFactory.deploy(tokenAddr)) as CarbonoRegistry;
+  const registry = (await RegistryFactory.deploy(tokenAddr, {
+    gasLimit: 6000000, // Forzamos un límite alto
+    gasPrice: 0        // En Quorum/redes privadas suele ser 0
+  })) as CarbonoRegistry;
   await registry.waitForDeployment();
   const registryAddr = await registry.getAddress();
   console.log(`   ➤ Contrato Registry: ${registryAddr}`);
@@ -53,21 +59,30 @@ async function main() {
   console.log("\n⚙️  CONFIGURANDO ECOISTEMA DE 3 NODOS...");
 
   console.log("   🔗 Vinculando Token al Registry...");
-  const tx1 = await token.setRegistryContract(registryAddr);
+  const tx1 = await token.setRegistryContract(registryAddr, {
+    gasLimit: 6000000, // Forzamos un límite alto
+    gasPrice: 0        // En Quorum/redes privadas suele ser 0
+  });
   await tx1.wait();
 
   console.log(`   🏢 Habilitando Nodo 1 como Publicador: ${process.env.ADDR_PUBLICADOR}`);
-  const tx2 = await registry.addPublicador(process.env.ADDR_PUBLICADOR!);
+  const tx2 = await registry.addPublicador(process.env.ADDR_PUBLICADOR!.toLowerCase(), {
+    gasLimit: 6000000, // Forzamos un límite alto
+    gasPrice: 0        // En Quorum/redes privadas suele ser 0
+  });
   await tx2.wait();
 
   console.log(`   ⚖️  Habilitando Nodo 2 como Auditor: ${process.env.ADDR_AUDITOR}`);
-  const tx3 = await registry.addAuditor(process.env.ADDR_AUDITOR!);
+  const tx3 = await registry.addAuditor(process.env.ADDR_AUDITOR!.toLowerCase(), {
+    gasLimit: 6000000, // Forzamos un límite alto
+    gasPrice: 0        // En Quorum/redes privadas suele ser 0
+  });
   await tx3.wait();
 
   // --- PASO 4: VERIFICACIÓN FINAL ---
   console.log("\n🏁 VERIFICACIÓN DE ESTADO POST-DEPLOY:");
-  const isPub = await registry.publicadores(process.env.ADDR_PUBLICADOR!);
-  const isAud = await registry.auditors(process.env.ADDR_AUDITOR!);
+  const isPub = await registry.publicadores(process.env.ADDR_PUBLICADOR!.toLowerCase());
+  const isAud = await registry.auditors(process.env.ADDR_AUDITOR!.toLowerCase());
   const linkedReg = await token.registryContract();
 
   console.log(`   📊 Nodo 1 Autorizado: ${isPub ? "✅" : "❌"}`);
