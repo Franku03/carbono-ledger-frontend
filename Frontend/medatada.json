@@ -1,0 +1,5 @@
+{
+  "requestFramePermissions": [],
+  "description": "DApp Frontend para red privada Quorum con integración MetaMask e IPFS.",
+  "name": "carbono-ledger-frontend"
+}
