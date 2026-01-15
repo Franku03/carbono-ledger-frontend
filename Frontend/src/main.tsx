@@ -21,6 +21,23 @@ const PINATA_JWT = import.meta.env.VITE_PINATA_JWT || "";
 const PINATA_GATEWAY = import.meta.env.VITE_PINATA_GATEWAY || "";
 const getIpfsUrl = (cid: string) => `https://${PINATA_GATEWAY}/ipfs/${cid}`;
 
+// --- CERTIFICADO ---
+const CertificateModal = ({ amount, onClose }: { amount: string, onClose: () => void }) => (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-6 backdrop-blur-md">
+    <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white text-slate-900 max-w-xl w-full rounded-[4rem] p-16 text-center shadow-2xl relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600" />
+      <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 mx-auto mb-8 shadow-inner"><Award className="w-12 h-12" /></div>
+      <h2 className="text-4xl font-black uppercase tracking-tighter mb-2">Acción Climática</h2>
+      <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.4em] mb-10">Certificado de Retiro Definitivo</p>
+      <div className="bg-slate-50 rounded-[2.5rem] p-10 mb-10 border border-slate-100">
+        <p className="text-7xl font-black text-emerald-600 tracking-tighter">{parseFloat(amount).toLocaleString()}</p>
+        <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest mt-2">Toneladas CO2 Neutralizadas</p>
+      </div>
+      <button onClick={onClose} className="w-full py-6 bg-slate-900 text-white rounded-3xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Cerrar Protocolo</button>
+    </motion.div>
+  </div>
+);
+
 // --- CONTEXTO ---
 const WalletContext = createContext<any>(null);
 const WalletProvider = ({ children }: { children: React.ReactNode }) => {
@@ -243,6 +260,8 @@ const Account = () => {
   const [amtT, setAmtT] = useState("");
   const [amtB, setAmtB] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showCert, setShowCert] = useState(false);
+  const [certQty, setCertQty] = useState("");
 
   const pending = orders.filter(o => o.seller.toLowerCase() === address?.toLowerCase());
 
@@ -260,13 +279,20 @@ const Account = () => {
     if (!signer || !amtB) return; setLoading(true);
     try {
       const c = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, signer);
-      await (await c.burn(ethers.parseUnits(amtB, 18))).wait();
-      alert("COMPENSADO"); refreshBalance(); setAmtB("");
+      const tx = await c.burn(ethers.parseUnits(amtB, 18), { gasLimit: 500000 });
+      await tx.wait();
+      setCertQty(amtB);
+      setShowCert(true);
+      refreshBalance();
+      setAmtB("");
     } catch (e: any) { alert(e.message); } finally { setLoading(false); }
   };
 
   return (
     <div className="space-y-12">
+      <AnimatePresence>
+        {showCert && <CertificateModal amount={certQty} onClose={() => setShowCert(false)} />}
+      </AnimatePresence>
       {isGenerator && pending.length > 0 && (
         <div className="bg-emerald-600/10 border-2 border-emerald-600/30 p-12 rounded-[4rem] shadow-2xl">
           <h3 className="text-3xl font-black text-white mb-10 uppercase italic flex gap-4 items-center"><Briefcase /> Centro de Ventas B2B</h3>
