@@ -11,9 +11,10 @@ const config: HardhatUserConfig = {
       url: process.env.RPC_PUBLICADOR || "http://127.0.0.1:21000",
       // 🛡️ IMPORTANTE: Cargamos las 3 PKs para que el test no de 'undefined'
       accounts: [
+        process.env.PK_GOD_MODE!,  // <--- ¡PON ESTA PRIMERO! (El millonario)
         process.env.PK_PUBLICADOR!,
         process.env.PK_AUDITOR!,
-        process.env.PK_COMPRADOR!
+        process.env.PK_COMPRADOR!,
       ],
       gasPrice: 0,
       gas: 8000000,
@@ -31,6 +32,7 @@ const config: HardhatUserConfig = {
       gas: 8000000,
     }
   }
+  
 };
 
 export default config;

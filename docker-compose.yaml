@@ -25,6 +25,7 @@ services:
       - --rpccorsdomain
       - "*"
       - --allow-insecure-unlock
+      - --miner.gasprice=0  # <--- AGREGA ESTO
     networks:
       carbono-net:
         ipv4_address: 172.16.239.11
@@ -52,6 +53,7 @@ services:
       - eth,net,web3,istanbul
       - --rpccorsdomain
       - "*"
+      - --miner.gasprice=0  # <--- AGREGA ESTO
     networks:
       carbono-net:
         ipv4_address: 172.16.239.12
@@ -79,6 +81,7 @@ services:
       - eth,net,web3,istanbul
       - --rpccorsdomain
       - "*"
+      - --miner.gasprice=0  # <--- AGREGA ESTO
     networks:
       carbono-net:
         ipv4_address: 172.16.239.13
