@@ -33,7 +33,31 @@ const CertificateModal = ({ amount, onClose }: { amount: string, onClose: () => 
         <p className="text-7xl font-black text-emerald-600 tracking-tighter">{parseFloat(amount).toLocaleString()}</p>
         <p className="text-slate-500 font-bold uppercase text-[10px] tracking-widest mt-2">Toneladas CO2 Neutralizadas</p>
       </div>
-      <button onClick={onClose} className="w-full py-6 bg-slate-900 text-white rounded-3xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Cerrar Protocolo</button>
+      <div className="flex flex-col gap-4">
+        <button
+          onClick={() => {
+            const btn = document.getElementById('dl-btn');
+            if (btn) {
+              btn.innerText = "GENERANDO PDF...";
+              setTimeout(() => {
+                btn.innerText = "CERTIFICADO DESCARGADO ✅";
+                // Simulación de descarga
+                const element = document.createElement("a");
+                const file = new Blob([`CERTIFICADO CARBONOLEDGER\n\nCantidad: ${amount} ECOS\nEstado: RETIRO DEFINITIVO\nFecha: ${new Date().toLocaleDateString()}\nID Transacción: CL-${Math.random().toString(36).substr(2, 9).toUpperCase()}`], { type: 'text/plain' });
+                element.href = URL.createObjectURL(file);
+                element.download = `Certificado_Compensacion_${amount}_ECOS.txt`;
+                document.body.appendChild(element);
+                element.click();
+              }, 1500);
+            }
+          }}
+          id="dl-btn"
+          className="w-full py-6 bg-emerald-600 text-white rounded-3xl font-black uppercase text-xs tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-emerald-600/20"
+        >
+          <Download className="w-4 h-4" /> Descargar Certificado (PDF)
+        </button>
+        <button onClick={onClose} className="w-full py-6 bg-slate-100 text-slate-500 rounded-3xl font-black uppercase text-[10px] tracking-[0.2em] hover:bg-slate-200 transition-all">Cerrar Protocolo</button>
+      </div>
     </motion.div>
   </div>
 );
